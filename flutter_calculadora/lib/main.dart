@@ -4,19 +4,18 @@ void main() {
   runApp(const MainApp());
 }
 
-String operacion1 = "";
-String operacion2 = "";
-String resultado = "esta madre";
-final TextEditingController _controller = TextEditingController(text: resultado);
+String numero = "";
+String operador = "";
+double res_numerico = 0;
+String resultado = "";
+TextEditingController _controller = TextEditingController(text: "");
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
-
-
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       home: Scaffold(
         body: Padding(
           padding: EdgeInsets.all(8.0),
@@ -27,9 +26,14 @@ class MainApp extends StatelessWidget {
   }
 }
 
-class ContainerGrid extends StatelessWidget {
+class ContainerGrid extends StatefulWidget {
   const ContainerGrid({super.key});
 
+  @override
+  _ContainerGridState createState() => _ContainerGridState();
+}
+
+class _ContainerGridState extends State<ContainerGrid> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -39,9 +43,7 @@ class ContainerGrid extends StatelessWidget {
           padding: const EdgeInsets.all(15.0),
           child: TextField(
             controller: _controller,
-            onChanged: (String src) {
-              
-            },
+            onChanged: (String src) {},
             autofocus: true,
             maxLength: 8,
             decoration: InputDecoration(
@@ -71,7 +73,7 @@ class ContainerGrid extends StatelessWidget {
                 buildContainer("1"),
                 buildContainer("2"),
                 buildContainer("3"),
-                buildContainer(""),
+                buildContainer("C"),
               ]),
               buildColumn([
                 buildContainer("4"),
@@ -105,34 +107,71 @@ class ContainerGrid extends StatelessWidget {
     );
   }
 
-
-Widget buildContainer(String text) {
-  return GestureDetector(
-    onTap: () {
-      if(text != "+" || text != "-" || text != "*" || text != "/"){
-        operacion1 += text;
-      }else{
-        operacion2 += text;
-      }
-
-      print(operacion1);
-    },
-    child: Container(
-      width: 70,
-      height: 70,
-      color: Colors.black,
-      child: Center(
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 30,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+  Widget buildContainer(String text) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          if (text == "C") {
+            resultado = "";
+            numero = "";
+            operador = "";
+            res_numerico = 0;
+          } else if (text == "=") {
+            if (operador.isNotEmpty && numero.isNotEmpty) {
+              realizarOperacion(double.parse(numero));
+              resultado = res_numerico.toString();
+              operador = "";
+              numero = "";
+            }
+          } else if (text == "+" || text == "-" || text == "x" || text == "/") {
+            if (operador.isNotEmpty && numero.isNotEmpty) {
+              realizarOperacion(double.parse(numero));
+            } else if (numero.isNotEmpty) {
+              res_numerico = double.parse(numero);
+            }
+            operador = text;
+            numero = "";
+            resultado += text;
+          } else {
+            numero += text;
+            resultado += text;
+          }
+          _controller.text = resultado;
+        });
+      },
+      child: Container(
+        width: 70,
+        height: 70,
+        color: Colors.black,
+        child: Center(
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 30,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
+
+  void realizarOperacion(double num) {
+    switch (operador) {
+      case "+":
+        res_numerico += num;
+        break;
+      case "-":
+        res_numerico -= num;
+        break;
+      case "/":
+        res_numerico /= num;
+        break;
+      case "x":
+        res_numerico *= num;
+        break;
+    }
+  }
 }
